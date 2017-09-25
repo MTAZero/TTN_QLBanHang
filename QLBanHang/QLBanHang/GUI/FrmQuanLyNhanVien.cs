@@ -185,5 +185,191 @@ namespace QLBanHang.GUI
 
             return true;
         }
+        #endregion
+
+        #region sự kiện ngầm
+        private void dgvNhanVien_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateDetail();
+        }
+        #endregion
+
+        #region sự kiện
+        private void btnTimKiem_Click(object sender, EventArgs e)
+        {
+            LoadDgvNhanVien();
+        }
+
+        private void btnThem_Click(object sender, EventArgs e)
+        {
+            if (btnThem.Text == "Thêm")
+            {
+
+                btnThem.Text = "Lưu";
+                btnSua.Enabled = false;
+                btnXoa.Text = "Hủy";
+
+                groupThongTin.Enabled = true;
+                dgvNhanVien.Enabled = false;
+
+                btnTimKiem.Enabled = false;
+                txtTimKiem.Enabled = false;
+
+                ClearControl();
+
+                return;
+            }
+
+            if (btnThem.Text == "Lưu")
+            {
+                if (Check())
+                {
+
+                    btnThem.Text = "Thêm";
+                    btnSua.Enabled = true;
+                    btnXoa.Text = "Xóa";
+
+                    groupThongTin.Enabled = false;
+                    dgvNhanVien.Enabled = true;
+
+                    btnTimKiem.Enabled = true;
+                    txtTimKiem.Enabled = true;
+
+                    try
+                    {
+                        NHANVIEN tg = getNhanVienByForm();
+                        db.NHANVIENs.Add(tg);
+                        db.SaveChanges();
+                        MessageBox.Show("Thêm thông tin nhân viên thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Thêm thông tin mặt hàng thất bại\n" + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+
+                    LoadDgvNhanVien();
+                }
+
+                return;
+            }
+        }
+
+        private void btnSua_Click(object sender, EventArgs e)
+        {
+            NHANVIEN tg = getNhanVienByID();
+            if (tg.ID == 0)
+            {
+                MessageBox.Show("Chưa có nhân viên nào được chọn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (btnSua.Text == "Sửa")
+            {
+                btnSua.Text = "Lưu";
+                btnThem.Enabled = false;
+                btnXoa.Text = "Hủy";
+
+                groupThongTin.Enabled = true;
+                dgvNhanVien.Enabled = false;
+
+                btnTimKiem.Enabled = false;
+                txtTimKiem.Enabled = false;
+                return;
+            }
+
+            if (btnSua.Text == "Lưu")
+            {
+                if (Check())
+                {
+                    btnSua.Text = "Sửa";
+                    btnThem.Enabled = true;
+                    btnXoa.Text = "Xóa";
+
+                    groupThongTin.Enabled = false;
+                    dgvNhanVien.Enabled = true;
+
+                    btnTimKiem.Enabled = true;
+                    txtTimKiem.Enabled = true;
+
+                    NHANVIEN tgs = getNhanVienByForm();
+                    tg.MANV = tgs.MANV;
+                    tg.TEN = tgs.TEN;
+                    tg.GIOITINH = tgs.GIOITINH;
+                    tg.QUEQUAN = tgs.QUEQUAN;
+                    tg.NGAYSINH = tgs.NGAYSINH;
+                    tg.QUYEN = tgs.QUYEN;
+
+                    try
+                    {
+                        db.SaveChanges();
+                        MessageBox.Show("Sửa thông tin nhân viên thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Sửa thông tin nhân viên thất bại\n" + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+
+
+                    LoadDgvNhanVien();
+                }
+
+                return;
+            }
+        }
+
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            if (btnXoa.Text == "Xóa")
+            {
+                NHANVIEN tg = getNhanVienByID();
+                if (tg.ID == 0)
+                {
+                    MessageBox.Show("Chưa có nhân viên nào được chọn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                DialogResult rs = MessageBox.Show("Bạn có chắc chắn xóa thông tin nhân viên này?", "Thông báo", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (rs == DialogResult.Cancel) return;
+
+                try
+                {
+                    db.NHANVIENs.Remove(tg);
+                    db.SaveChanges();
+                    MessageBox.Show("Xóa nhân viên thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    MessageBox.Show("Xóa nhân viên thất bại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                LoadDgvNhanVien();
+
+                return;
+            }
+
+            if (btnXoa.Text == "Hủy")
+            {
+                btnXoa.Text = "Xóa";
+                btnThem.Text = "Thêm";
+                btnSua.Text = "Sửa";
+
+                btnThem.Enabled = true;
+                btnSua.Enabled = true;
+
+                groupThongTin.Enabled = false;
+                dgvNhanVien.Enabled = true;
+
+                btnTimKiem.Enabled = true;
+                txtTimKiem.Enabled = true;
+
+                UpdateDetail();
+
+                return;
+            }
+        }
+        #endregion
     }
+}
 }
