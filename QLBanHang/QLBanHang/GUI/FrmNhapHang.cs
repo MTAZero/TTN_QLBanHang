@@ -305,5 +305,57 @@ namespace QLBanHang.GUI
             }
         }
 
+        private void btnXoaPhieuNhap_Click(object sender, EventArgs e)
+        {
+            if (btnXoaPhieuNhap.Text == "Xóa")
+            {
+                PHIEUNHAP tg = getPhieuNhapByID();
+                if (tg.ID == 0)
+                {
+                    MessageBox.Show("Chưa có phiếu nhập nào được chọn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                DialogResult rs = MessageBox.Show("Bạn có chắc chắn xóa thông tin phiếu nhập này?", "Thông báo", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (rs == DialogResult.Cancel) return;
+
+                try
+                {
+                    db.PHIEUNHAPs.Remove(tg);
+                    db.SaveChanges();
+                    MessageBox.Show("Xóa phiếu nhập thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    MessageBox.Show("Xóa phiếu nhập thất bại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                LoadDgvPhieuNhap();
+
+                return;
+            }
+
+            if (btnXoaPhieuNhap.Text == "Hủy")
+            {
+                btnXoaPhieuNhap.Text = "Xóa";
+                btnThemPhieuNhap.Text = "Thêm";
+                btnSuaPhieuNhap.Text = "Sửa";
+
+                btnThemPhieuNhap.Enabled = true;
+                btnSuaPhieuNhap.Enabled = true;
+
+                groupThongTinPhieuNhap.Enabled = false;
+                dgvPhieuNhap.Enabled = true;
+
+                panelChiTietNhap.Enabled = true;
+
+                UpdateDetailPhieuNhap();
+
+                return;
+            }
+        }
+
+        #endregion
+
     }
 }
