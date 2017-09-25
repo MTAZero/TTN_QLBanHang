@@ -182,5 +182,128 @@ namespace QLBanHang.GUI
 
         #endregion
 
+        #region Sự kiện ngầm
+
+        private void dgvPhieuNhap_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateDetailPhieuNhap();
+        }
+
+        #endregion
+
+        #region Sự kiện
+        private void btnThemPhieuNhap_Click(object sender, EventArgs e)
+        {
+            if (btnThemPhieuNhap.Text == "Thêm")
+            {
+
+                btnThemPhieuNhap.Text = "Lưu";
+                btnSuaPhieuNhap.Enabled = false;
+                btnXoaPhieuNhap.Text = "Hủy";
+
+                groupThongTinPhieuNhap.Enabled = true;
+                dgvPhieuNhap.Enabled = false;
+
+                panelChiTietNhap.Enabled = false;
+
+                ClearControlPhieuNhap();
+
+                return;
+            }
+
+            if (btnThemPhieuNhap.Text == "Lưu")
+            {
+                if (CheckPhieuNhap())
+                {
+
+                    btnThemPhieuNhap.Text = "Thêm";
+                    btnSuaPhieuNhap.Enabled = true;
+                    btnXoaPhieuNhap.Text = "Xóa";
+
+                    groupThongTinPhieuNhap.Enabled = false;
+                    dgvPhieuNhap.Enabled = true;
+
+                    panelChiTietNhap.Enabled = true;
+
+
+                    try
+                    {
+                        PHIEUNHAP tg = getPhieuNhapByForm();
+                        db.PHIEUNHAPs.Add(tg);
+                        db.SaveChanges();
+                        MessageBox.Show("Thêm thông tin phiếu nhập thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Thêm thông tin phiếu nhập thất bại\n" + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+
+                    LoadDgvPhieuNhap();
+                }
+
+                return;
+            }
+        }
+
+        private void btnSuaPhieuNhap_Click(object sender, EventArgs e)
+        {
+            PHIEUNHAP tg = getPhieuNhapByID();
+            if (tg.ID == 0)
+            {
+                MessageBox.Show("Chưa có phiếu nhập nào được chọn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (btnSuaPhieuNhap.Text == "Sửa")
+            {
+                btnSuaPhieuNhap.Text = "Lưu";
+                btnThemPhieuNhap.Enabled = false;
+                btnXoaPhieuNhap.Text = "Hủy";
+
+                groupThongTinPhieuNhap.Enabled = true;
+                dgvPhieuNhap.Enabled = false;
+
+                panelChiTietNhap.Enabled = false;
+
+                return;
+            }
+
+            if (btnSuaPhieuNhap.Text == "Lưu")
+            {
+                if (CheckPhieuNhap())
+                {
+                    btnSuaPhieuNhap.Text = "Sửa";
+                    btnThemPhieuNhap.Enabled = true;
+                    btnXoaPhieuNhap.Text = "Xóa";
+
+                    groupThongTinPhieuNhap.Enabled = false;
+                    dgvPhieuNhap.Enabled = true;
+
+                    panelChiTietNhap.Enabled = true;
+
+                    PHIEUNHAP tgs = getPhieuNhapByForm();
+                    tg.NHANVIENID = tgs.NHANVIENID;
+                    tg.NGAY = tgs.NGAY;
+                    tg.DIADIEM = tgs.DIADIEM;
+                    tg.TONGTIEN = tgs.TONGTIEN;
+
+                    try
+                    {
+                        db.SaveChanges();
+                        MessageBox.Show("Sửa thông tin phiếu nhập thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Sửa thông tin phiếu nhập thất bại\n" + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    LoadDgvPhieuNhap();
+                }
+
+                return;
+            }
+        }
+
     }
 }
