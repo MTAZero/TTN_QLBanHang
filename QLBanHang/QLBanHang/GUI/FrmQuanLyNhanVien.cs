@@ -67,6 +67,8 @@ namespace QLBanHang.GUI
             LoadControl();
             LoadDgvNhanVien();
         }
+        #endregion
+
         #region Hàm chức năng
 
         private void ClearControl()
@@ -371,5 +373,4 @@ namespace QLBanHang.GUI
         }
         #endregion
     }
-}
 }
