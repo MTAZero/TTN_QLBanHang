@@ -86,5 +86,101 @@ namespace QLBanHang.GUI
         }
         #endregion
 
+        #region Hàm chức năng
+
+        private void UpdateDetailPhieuNhap()
+        {
+            ClearControlPhieuNhap();
+            PHIEUNHAP tg = getPhieuNhapByID();
+            if (tg.ID == 0) return;
+
+            int TongTienCu = (int)tg.TONGTIEN;
+
+            try
+            {
+                try
+                {
+
+                    int cnt = 0;
+                    cnt = db.CHITIETNHAPs.Where(p => p.PHIEUNHAPID == tg.ID).ToList().Count;
+                    if (cnt == 0) tg.TONGTIEN = 0;
+
+
+                    tg.TONGTIEN = db.CHITIETNHAPs.Where(p => p.PHIEUNHAPID == tg.ID).Sum(p => p.THANHTIEN).Value;
+
+                }
+                catch { tg.TONGTIEN = 0; }
+
+                if (TongTienCu != tg.TONGTIEN) LoadDgvPhieuNhap();
+                db.SaveChanges();
+
+                cbxNhanVien.SelectedValue = tg.NHANVIENID;
+                dateNgayNhap.Value = (DateTime)tg.NGAY;
+                txtDiaDiem.Text = tg.DIADIEM;
+                txtTongTien.Text = tg.TONGTIEN.ToString();
+
+                indexPhieuNhap1 = indexPhieuNhap;
+                indexPhieuNhap = dgvPhieuNhap.SelectedRows[0].Index;
+
+
+                LoadDgvChiTietNhap();
+            }
+            catch { }
+        }
+
+        private void ClearControlPhieuNhap()
+        {
+            try
+            {
+                cbxNhanVien.SelectedIndex = 0;
+                dateNgayNhap.Value = DateTime.Now;
+                txtDiaDiem.Text = "";
+                txtTongTien.Text = "";
+            }
+            catch { }
+        }
+
+        private bool CheckPhieuNhap()
+        {
+            if (txtDiaDiem.Text == "")
+            {
+                MessageBox.Show("Địa điểm không được để trống", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        private PHIEUNHAP getPhieuNhapByID()
+        {
+            PHIEUNHAP ans = new PHIEUNHAP();
+
+            try
+            {
+                int id = (int)dgvPhieuNhap.SelectedRows[0].Cells["IDPhieuNhap"].Value;
+                PHIEUNHAP z = db.PHIEUNHAPs.Where(p => p.ID == id).FirstOrDefault();
+
+                if (z != null) ans = z;
+            }
+            catch { }
+
+            return ans;
+        }
+
+        private PHIEUNHAP getPhieuNhapByForm()
+        {
+            PHIEUNHAP ans = new PHIEUNHAP();
+
+            ans.NHANVIENID = (int)cbxNhanVien.SelectedValue;
+            ans.NGAY = dateNgayNhap.Value;
+            ans.DIADIEM = txtDiaDiem.Text;
+            ans.TONGTIEN = 0;
+            //ans.TONGTIEN = Int32.Parse(txtTongTien.Text);
+
+            return ans;
+        }
+
+        #endregion
+
     }
 }
