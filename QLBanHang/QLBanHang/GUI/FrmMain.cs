@@ -57,6 +57,72 @@ namespace QLBanHang.GUI
         }
         #endregion
 
+        #region sự kiện
+        private void btnQLNhanVien_Click(object sender, EventArgs e)
+        {
+            FrmQuanLyNhanVien form = new FrmQuanLyNhanVien();
+            form.TopLevel = false;
+            form.Dock = DockStyle.Fill;
+            panelMain.Controls.Clear();
+            panelMain.Controls.Add(form);
+            form.Show();
+        }
+
+        private void btnQLMatHang_Click(object sender, EventArgs e)
+        {
+            FrmQuanLyMatHang form = new FrmQuanLyMatHang();
+            form.TopLevel = false;
+            form.Dock = DockStyle.Fill;
+            panelMain.Controls.Clear();
+            panelMain.Controls.Add(form);
+            form.Show();
+        }
+        private void btnQLKho_Click(object sender, EventArgs e)
+        {
+            FrmKho form = new FrmKho();
+            form.TopLevel = false;
+            form.Dock = DockStyle.Fill;
+            panelMain.Controls.Clear();
+            panelMain.Controls.Add(form);
+            form.Show();
+        }
+
+        private void btnDong_Click(object sender, EventArgs e)
+        {
+            DialogResult rs = MessageBox.Show("Bạn có chắc chắn đăng xuất không?", "Thông báo", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+            if (rs == DialogResult.Cancel) return;
+
+            this.Close();
+        }
+
+        private void btnNhapHang_Click(object sender, EventArgs e)
+        {
+            FrmNhapHang form = new FrmNhapHang(nv);
+            form.TopLevel = false;
+            form.Dock = DockStyle.Fill;
+            panelMain.Controls.Clear();
+            panelMain.Controls.Add(form);
+            form.Show();
+        }
+
+        private void btnXuatHang_Click(object sender, EventArgs e)
+        {
+            FrmXuatHang form = new FrmXuatHang(nv);
+            form.TopLevel = false;
+            form.Dock = DockStyle.Fill;
+            panelMain.Controls.Clear();
+            panelMain.Controls.Add(form);
+            form.Show();
+        }
+
+
+
+        private void txtDoiMatKhau_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            FrmDoiMatKhau form = new FrmDoiMatKhau(nv);
+            form.ShowDialog();
+        }
+        #endregion
 
     }
 }
