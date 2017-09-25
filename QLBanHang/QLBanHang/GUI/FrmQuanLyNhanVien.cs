@@ -67,5 +67,123 @@ namespace QLBanHang.GUI
             LoadControl();
             LoadDgvNhanVien();
         }
+        #region Hàm chức năng
+
+        private void ClearControl()
+        {
+            txtMaNhanVien.Text = "";
+            txtHoVaTen.Text = "";
+            cbxGioiTinh.SelectedIndex = 0;
+            txtSDT.Text = "";
+            txtQueQuan.Text = "";
+            dateNgaySinh.Value = DateTime.Now;
+            txtTaiKhoan.Text = "";
+            cbxQuyen.SelectedIndex = 0;
+        }
+
+        private void UpdateDetail()
+        {
+            ClearControl();
+            try
+            {
+                NHANVIEN nhanvien = getNhanVienByID();
+
+                if (nhanvien == null || nhanvien.ID == 0) return;
+
+                // cập nhật trên giao diện
+                txtMaNhanVien.Text = nhanvien.MANV;
+                txtHoVaTen.Text = nhanvien.TEN;
+                cbxGioiTinh.SelectedIndex = (int)nhanvien.GIOITINH;
+                txtSDT.Text = nhanvien.SDT;
+                txtQueQuan.Text = nhanvien.QUEQUAN;
+                dateNgaySinh.Value = (DateTime)nhanvien.NGAYSINH;
+                txtTaiKhoan.Text = nhanvien.TAIKHOAN;
+                cbxQuyen.SelectedIndex = (int)nhanvien.QUYEN;
+
+                index1 = index;
+                index = dgvNhanVien.SelectedRows[0].Index;
+            }
+            catch { }
+
+        }
+
+        private NHANVIEN getNhanVienByID()
+        {
+            try
+            {
+                int id = (int)dgvNhanVien.SelectedRows[0].Cells["ID"].Value;
+                NHANVIEN nhanvien = db.NHANVIENs.Where(p => p.ID == id).FirstOrDefault();
+                return (nhanvien != null) ? nhanvien : new NHANVIEN();
+            }
+            catch
+            {
+                return new NHANVIEN();
+            }
+        }
+
+        private NHANVIEN getNhanVienByForm()
+        {
+            NHANVIEN ans = new NHANVIEN();
+            ans.MANV = txtMaNhanVien.Text;
+            ans.TEN = txtHoVaTen.Text;
+            ans.GIOITINH = cbxGioiTinh.SelectedIndex;
+            ans.SDT = txtSDT.Text;
+            ans.QUEQUAN = txtQueQuan.Text;
+            ans.TAIKHOAN = txtTaiKhoan.Text;
+            ans.NGAYSINH = dateNgaySinh.Value;
+            ans.QUYEN = cbxQuyen.SelectedIndex;
+            ans.MATKHAU = "1";
+
+            return ans;
+        }
+
+        private bool Check()
+        {
+            if (txtMaNhanVien.Text == "")
+            {
+                MessageBox.Show("Mã nhân viên không được để trống", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            int cnt = db.NHANVIENs.Where(p => p.MANV == txtMaNhanVien.Text).ToList().Count;
+            if (cnt > 0)
+            {
+                bool ok = false;
+                if (btnSua.Text == "Lưu")
+                {
+                    // Nếu là sửa
+                    NHANVIEN nv = getNhanVienByID();
+                    if (nv.MANV == txtMaNhanVien.Text) ok = true;
+                }
+
+                if (!ok)
+                {
+                    MessageBox.Show("Mã nhân viên đã được sử dụng", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
+
+            if (txtHoVaTen.Text == "")
+            {
+                MessageBox.Show("Họ và tên nhân viên không được để trống", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+
+            if (txtTaiKhoan.Text == "")
+            {
+                MessageBox.Show("Tài khoản của nhân viên không được để trống", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (txtQueQuan.Text == "")
+            {
+                MessageBox.Show("Quê quán của nhân viên không được để trống", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
     }
 }
