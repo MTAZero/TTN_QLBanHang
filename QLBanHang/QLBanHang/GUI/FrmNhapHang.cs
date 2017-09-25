@@ -357,5 +357,356 @@ namespace QLBanHang.GUI
 
         #endregion
 
+        #endregion
+
+        #region Chi tiết nhập
+
+        #region Load
+        private void LoadInitControlChiTietNhap()
+        {
+            // cbx Nhân viên
+            cbxMatHang.DataSource = db.MATHANGs.ToList();
+            cbxMatHang.ValueMember = "ID";
+            cbxMatHang.DisplayMember = "TEN";
+
+            groupThongTinChiTietNhap.Enabled = false;
+
+        }
+
+        private void LoadDgvChiTietNhap()
+        {
+
+            int idPhieuNhap = 0;
+            try
+            {
+                idPhieuNhap = (int)dgvPhieuNhap.SelectedRows[0].Cells["IDPhieuNhap"].Value;
+            }
+            catch
+            {
+            }
+
+            int i = 0;
+            var dataChiTietNhap = db.CHITIETNHAPs.ToList()
+                                  .Where(p => p.PHIEUNHAPID == idPhieuNhap)
+                                  .Select(p => new
+                                  {
+                                      ID = p.ID,
+                                      STT = ++i,
+                                      MatHang = db.MATHANGs.Where(z => z.ID == p.MATHANGID).FirstOrDefault().TEN,
+                                      SoLuong = p.SOLUONG,
+                                      DonGia = p.DONGIA,
+                                      ThanhTien = p.THANHTIEN
+                                  })
+                                  .ToList();
+            dgvChiTietNhap.DataSource = dataChiTietNhap;
+
+            // thêm index 
+            indexChiTietNhap = indexChiTietNhap1;
+            try
+            {
+                dgvChiTietNhap.Rows[indexChiTietNhap].Cells["STTChiTietNhap"].Selected = true;
+                dgvChiTietNhap.Select();
+            }
+            catch { }
+        }
+
+        private void LoadChiTietNhap()
+        {
+            LoadInitControlChiTietNhap();
+            LoadDgvChiTietNhap();
+        }
+        #endregion
+
+        #region Hàm chức năng
+
+        private void UpdateDetailChiTietNhap()
+        {
+            ClearControlChiTietNhap();
+            CHITIETNHAP tg = getChiTietNhapByID();
+            if (tg.ID == 0) return;
+
+            try
+            {
+                cbxMatHang.SelectedValue = (int)tg.MATHANGID;
+                txtSoLuong.Text = tg.SOLUONG.ToString();
+                txtDonGia.Text = tg.DONGIA.ToString();
+                txtThanhTien.Text = tg.THANHTIEN.ToString();
+
+                indexChiTietNhap1 = indexChiTietNhap;
+                indexChiTietNhap = dgvChiTietNhap.SelectedRows[0].Index;
+            }
+            catch { }
+        }
+
+        private void ClearControlChiTietNhap()
+        {
+            try
+            {
+                cbxMatHang.SelectedIndex = 0;
+                txtSoLuong.Text = "";
+                txtDonGia.Text = "";
+                txtThanhTien.Text = "";
+            }
+            catch { }
+        }
+
+        private bool CheckChiTietNhap()
+        {
+            // số lượng
+            try
+            {
+                int k = Int32.Parse(txtSoLuong.Text);
+                if (k == 0) k = 3 / k;
+            }
+            catch
+            {
+                MessageBox.Show("Số lượng phải là số nguyên dương", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            // đơn giá
+            try
+            {
+                int k = Int32.Parse(txtDonGia.Text);
+            }
+            catch
+            {
+                MessageBox.Show("Đơn giá phải là số nguyên", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        private CHITIETNHAP getChiTietNhapByID()
+        {
+            CHITIETNHAP ans = new CHITIETNHAP();
+
+            try
+            {
+                int id = (int)dgvChiTietNhap.SelectedRows[0].Cells["IDChiTietNhap"].Value;
+                CHITIETNHAP z = db.CHITIETNHAPs.Where(p => p.ID == id).FirstOrDefault();
+
+                if (z != null) ans = z;
+            }
+            catch { }
+
+            return ans;
+        }
+
+        private CHITIETNHAP getChiTietNhapByForm()
+        {
+            CHITIETNHAP ans = new CHITIETNHAP();
+
+            try
+            {
+                int idPhieuNhap;
+                ans.MATHANGID = (int)cbxMatHang.SelectedValue;
+                ans.SOLUONG = Int32.Parse(txtSoLuong.Text);
+                ans.DONGIA = Int32.Parse(txtDonGia.Text);
+                ans.THANHTIEN = ans.SOLUONG * ans.DONGIA;
+
+                idPhieuNhap = (int)dgvPhieuNhap.SelectedRows[0].Cells["IDPhieuNhap"].Value;
+                ans.PHIEUNHAPID = idPhieuNhap;
+            }
+            catch { }
+
+            return ans;
+        }
+
+        #endregion
+
+        #region Sự kiện ngầm
+
+        private void dgvChiTietNhap_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateDetailChiTietNhap();
+        }
+
+        private void cbxMatHang_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int id = (int)cbxMatHang.SelectedValue;
+                txtDonViTinh.Text = db.MATHANGs.Where(p => p.ID == id).FirstOrDefault().DONVITINH;
+            }
+            catch { }
+        }
+
+        #endregion
+
+        #region Sự kiện
+        private void btnThemChiTietNhap_Click(object sender, EventArgs e)
+        {
+            if (btnThemChiTietNhap.Text == "Thêm")
+            {
+
+                btnThemChiTietNhap.Text = "Lưu";
+                btnSuaChiTietNhap.Enabled = false;
+                btnXoaChiTietNhap.Text = "Hủy";
+
+                groupThongTinChiTietNhap.Enabled = true;
+                dgvChiTietNhap.Enabled = false;
+
+                panelPhieuNhap.Enabled = false;
+
+                ClearControlChiTietNhap();
+
+                return;
+            }
+
+            if (btnThemChiTietNhap.Text == "Lưu")
+            {
+                if (CheckChiTietNhap())
+                {
+
+                    btnThemChiTietNhap.Text = "Thêm";
+                    btnSuaChiTietNhap.Enabled = true;
+                    btnXoaChiTietNhap.Text = "Xóa";
+
+                    groupThongTinChiTietNhap.Enabled = false;
+                    dgvChiTietNhap.Enabled = true;
+
+                    panelPhieuNhap.Enabled = true;
+
+
+                    try
+                    {
+                        CHITIETNHAP tg = getChiTietNhapByForm();
+                        db.CHITIETNHAPs.Add(tg);
+                        db.SaveChanges();
+                        MessageBox.Show("Thêm thông tin Chi tiết nhập thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Thêm thông tin Chi tiết nhập thất bại\n" + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+
+                    LoadDgvChiTietNhap();
+                    UpdateDetailPhieuNhap();
+                }
+
+                return;
+            }
+        }
+
+        private void btnSuaChiTietNhap_Click(object sender, EventArgs e)
+        {
+            CHITIETNHAP tg = getChiTietNhapByID();
+            if (tg.ID == 0)
+            {
+                MessageBox.Show("Chưa có Chi tiết nhập nào được chọn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (btnSuaChiTietNhap.Text == "Sửa")
+            {
+                btnSuaChiTietNhap.Text = "Lưu";
+                btnThemChiTietNhap.Enabled = false;
+                btnXoaChiTietNhap.Text = "Hủy";
+
+                groupThongTinChiTietNhap.Enabled = true;
+                dgvChiTietNhap.Enabled = false;
+
+                panelPhieuNhap.Enabled = false;
+
+                return;
+            }
+
+            if (btnSuaChiTietNhap.Text == "Lưu")
+            {
+                if (CheckChiTietNhap())
+                {
+                    btnSuaChiTietNhap.Text = "Sửa";
+                    btnThemChiTietNhap.Enabled = true;
+                    btnXoaChiTietNhap.Text = "Xóa";
+
+                    groupThongTinChiTietNhap.Enabled = false;
+                    dgvChiTietNhap.Enabled = true;
+
+                    panelPhieuNhap.Enabled = true;
+
+                    CHITIETNHAP tgs = getChiTietNhapByForm();
+                    tg.MATHANGID = tgs.MATHANGID;
+                    tg.SOLUONG = tgs.SOLUONG;
+                    tg.DONGIA = tgs.DONGIA;
+                    tg.THANHTIEN = tgs.THANHTIEN;
+
+                    try
+                    {
+                        db.SaveChanges();
+                        MessageBox.Show("Sửa thông tin Chi tiết nhập thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Sửa thông tin Chi tiết nhập thất bại\n" + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    LoadDgvChiTietNhap();
+
+                    UpdateDetailPhieuNhap();
+                }
+
+                return;
+            }
+        }
+
+        private void btnXoaChiTietNhap_Click(object sender, EventArgs e)
+        {
+            if (btnXoaChiTietNhap.Text == "Xóa")
+            {
+                CHITIETNHAP tg = getChiTietNhapByID();
+                if (tg.ID == 0)
+                {
+                    MessageBox.Show("Chưa có Chi tiết nhập nào được chọn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                DialogResult rs = MessageBox.Show("Bạn có chắc chắn xóa thông tin Chi tiết nhập này?", "Thông báo", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (rs == DialogResult.Cancel) return;
+
+                try
+                {
+                    db.CHITIETNHAPs.Remove(tg);
+                    db.SaveChanges();
+                    MessageBox.Show("Xóa Chi tiết nhập thành công", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    MessageBox.Show("Xóa Chi tiết nhập thất bại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                LoadDgvChiTietNhap();
+                UpdateDetailPhieuNhap();
+
+                return;
+            }
+
+            if (btnXoaChiTietNhap.Text == "Hủy")
+            {
+                btnXoaChiTietNhap.Text = "Xóa";
+                btnThemChiTietNhap.Text = "Thêm";
+                btnSuaChiTietNhap.Text = "Sửa";
+
+                btnThemChiTietNhap.Enabled = true;
+                btnSuaChiTietNhap.Enabled = true;
+
+                groupThongTinChiTietNhap.Enabled = false;
+                dgvChiTietNhap.Enabled = true;
+
+                panelPhieuNhap.Enabled = true;
+
+                UpdateDetailChiTietNhap();
+
+
+                return;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
     }
 }
